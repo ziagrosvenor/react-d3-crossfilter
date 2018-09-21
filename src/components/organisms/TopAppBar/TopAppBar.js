@@ -6,15 +6,18 @@ import {
   TopAppBarNavigationIcon,
   TopAppBarActionItem,
   TopAppBarTitle,
+  TopAppBarFixedAdjust,
 } from '@rmwc/top-app-bar';
 
 export const TopAppBar = props => (
-  <RmwcTopAppBar>
-    <TopAppBarRow>
-      <TopAppBarSection>
-        <TopAppBarNavigationIcon icon="menu" />
-        <TopAppBarTitle>React D3 Crossfilter</TopAppBarTitle>
-      </TopAppBarSection>
-    </TopAppBarRow>
-  </RmwcTopAppBar>
+  <div>
+    <RmwcTopAppBar fixed={false}>
+      <TopAppBarRow>
+        <TopAppBarSection>
+          <TopAppBarTitle>React D3 Crossfilter</TopAppBarTitle>
+        </TopAppBarSection>
+      </TopAppBarRow>
+    </RmwcTopAppBar>
+    <TopAppBarFixedAdjust />
+  </div>
 );
