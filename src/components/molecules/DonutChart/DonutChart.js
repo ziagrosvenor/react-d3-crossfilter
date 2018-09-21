@@ -61,6 +61,18 @@ function getArcs() {
   return pieLayout(sortBy(data, d => d.name));
 }
 
+const ARC_OPACITY = 0.9;
+
+const Arc = ({state, fill}) => (
+  <path d={innerArcPath(state)} fill={fill} opacity={ARC_OPACITY} />
+);
+
+const Text = ({transform, children, textAnchor}) => (
+  <text dy="4px" fontSize="12px" transform={transform} textAnchor={textAnchor}>
+    {children}
+  </text>
+);
+
 export class DonutChart extends PureComponent {
   state = {
     arcs: getArcs(),
@@ -112,18 +124,13 @@ export class DonutChart extends PureComponent {
                       ];
                       return (
                         <g key={key}>
-                          <path
-                            d={innerArcPath(state)}
-                            fill={colors(data.data.name)}
-                            opacity={0.9}
-                          />
-                          <text
-                            dy="4px"
-                            fontSize="12px"
+                          <Arc state={state} fill={colors(data.data.name)} />
+                          <Text
                             transform={`translate(${p2.toString()})`}
                             textAnchor={mid(state) ? 'start' : 'end'}>
                             {data.data.name}
-                          </text>
+                          </Text>
+
                           <polyline
                             fill="none"
                             stroke="rgba(127,127,127,0.5)"
