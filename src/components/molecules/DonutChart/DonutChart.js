@@ -52,6 +52,7 @@ const outerArcPath = arc()
   .innerRadius(radius * 1.2)
   .outerRadius(radius * 1.2);
 
+// Use real data
 function getArcs() {
   const data = shuffle(mockData).map(({name}) => ({
     name,
@@ -63,15 +64,38 @@ function getArcs() {
 
 const ARC_OPACITY = 0.9;
 
-const Arc = ({state, fill}) => (
-  <path d={innerArcPath(state)} fill={fill} opacity={ARC_OPACITY} />
+const Arc = ({startAngle, endAngle, fill}) => (
+  <path
+    d={innerArcPath({startAngle, endAngle})}
+    fill={fill}
+    opacity={ARC_OPACITY}
+  />
 );
 
-const Text = ({transform, children, textAnchor}) => (
-  <text dy="4px" fontSize="12px" transform={transform} textAnchor={textAnchor}>
-    {children}
-  </text>
-);
+const ArcLabel = ({startAngle, endAngle, labelText}) => {
+  const angleStartEnd = {startAngle, endAngle};
+  const p1 = outerArcPath.centroid({startAngle, endAngle});
+  const p2 = [
+    mid(angleStartEnd) ? p1[0] + radius * 0.5 : p1[0] - radius * 0.5,
+    p1[1],
+  ];
+  const points = `${innerArcPath.centroid(
+    angleStartEnd,
+  )},${p1},${p2.toString()}`;
+
+  return (
+    <g>
+      <text
+        dy="4px"
+        fontSize="12px"
+        transform={`translate(${p2.toString()})`}
+        textAnchor={mid(angleStartEnd) ? 'start' : 'end'}>
+        {labelText}
+      </text>
+      <polyline fill="none" stroke="rgba(127,127,127,0.5)" points={points} />
+    </g>
+  );
+};
 
 export class DonutChart extends PureComponent {
   state = {
@@ -115,28 +139,17 @@ export class DonutChart extends PureComponent {
                 return (
                   <g>
                     {nodes.map(({key, data, state}) => {
-                      const p1 = outerArcPath.centroid(state);
-                      const p2 = [
-                        mid(state)
-                          ? p1[0] + radius * 0.5
-                          : p1[0] - radius * 0.5,
-                        p1[1],
-                      ];
                       return (
                         <g key={key}>
-                          <Arc state={state} fill={colors(data.data.name)} />
-                          <Text
-                            transform={`translate(${p2.toString()})`}
-                            textAnchor={mid(state) ? 'start' : 'end'}>
-                            {data.data.name}
-                          </Text>
-
-                          <polyline
-                            fill="none"
-                            stroke="rgba(127,127,127,0.5)"
-                            points={`${innerArcPath.centroid(
-                              state,
-                            )},${p1},${p2.toString()}`}
+                          <Arc
+                            startAngle={state.startAngle}
+                            endAngle={state.endAngle}
+                            fill={colors(data.data.name)}
+                          />
+                          <ArcLabel
+                            startAngle={state.startAngle}
+                            endAngle={state.endAngle}
+                            labelText={data.data.name}
                           />
                         </g>
                       );
