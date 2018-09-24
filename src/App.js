@@ -26,7 +26,6 @@ class App extends Component {
     loading: true,
   };
   async componentDidMount() {
-    this.setState({loading: true});
     const response = await fetch('./flights.csv');
     const csvData = await response.text();
     const flights = csvParse(csvData, (d, i) => {
@@ -41,9 +40,13 @@ class App extends Component {
     const hour = flightsFilter.dimension(
       d => d.date.getHours() + d.date.getMinutes() / 60,
     );
+    const distance = flightsFilter.dimension(d => Math.min(1999, d.distance));
+    const distances = distance.group(d => Math.floor(d / 50) * 50);
+    const hours = hour.group(Math.floor);
+
     this.setState({
       loading: false,
-      hours: hour.group(Math.floor),
+      hours,
     });
   }
   render() {
@@ -59,7 +62,7 @@ class App extends Component {
               {this.state.loading ? (
                 undefined
               ) : (
-                <BarChart domain={[0, 24]} data={this.state.hours} />
+                <BarChart data={this.state.hours.all()} />
               )}
             </GridCell>
           </Grid>

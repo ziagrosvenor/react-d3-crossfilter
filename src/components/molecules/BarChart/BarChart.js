@@ -21,38 +21,26 @@ const dims = [
 ];
 
 export class BarChart extends PureComponent {
-  state = {
-    sortAlpha: true,
-  };
+  y = scaleLinear()
+    .range([dims[1], 0])
+    .domain([0, max(this.props.data, d => d.value)]);
 
-  update = () => {
-    this.setState(state => ({
-      sortAlpha: !state.sortAlpha,
-    }));
-  };
-
-  componentDidMount() {}
+  scale = scaleBand()
+    .rangeRound([0, dims[0]])
+    .domain(this.props.data.map(d => d.key))
+    .padding(0.1);
 
   render() {
-    const {sortAlpha} = this.state;
-    const y = scaleLinear()
-      .range([dims[1], 0])
-      .domain([0, max(this.props.data.all(), d => d.value)]);
-
-    const scale = scaleBand()
-      .rangeRound([0, dims[0]])
-      .domain(this.props.data.all().map(d => d.key))
-      .padding(0.1);
-
+    const {y, scale} = this;
     return (
       <div>
         <Surface view={view} trbl={trbl}>
           <NodeGroup
-            data={this.props.data.all()}
+            data={this.props.data}
             keyAccessor={d => d.key}
             start={() => ({
               opacity: 1e-6,
-              y: 1e-6,
+              y: dims[1],
               width: scale.bandwidth(),
             })}
             enter={d => ({
@@ -63,8 +51,12 @@ export class BarChart extends PureComponent {
             update={(d, i) => ({
               opacity: [0.7],
               y: [y(d.value)],
-              width: [scale.bandwidth()],
-              timing: {duration: 750, delay: i * 50, ease: easeExpInOut},
+              width: scale.bandwidth(),
+              timing: {
+                duration: 750,
+                delay: i * 50,
+                ease: easeExpInOut,
+              },
             })}
             leave={() => ({
               opacity: [1e-6],
