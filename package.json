@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "color": "^3.0.0",
     "d3-array": "^1.2.4",
     "d3-dsv": "^1.0.10",
     "d3-ease": "^1.0.5",
@@ -15,7 +16,8 @@
     "react-dom": "^16.5.2",
     "react-move": "^2.8.0",
     "react-scripts": "1.1.5",
-    "rmwc": "^2.1.1",
+    "recompose": "^0.30.0",
+    "rmwc": "^3.0.3",
     "styled-components": "^3.4.9"
   },
   "scripts": {
