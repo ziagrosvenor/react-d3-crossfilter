@@ -30,6 +30,9 @@ function parseDate(d) {
   );
 }
 
+const groupDistance = d => Math.floor(d / 100) * 100;
+const groupHours = Math.floor;
+
 class App extends Component {
   state = {
     hours: null,
@@ -51,8 +54,8 @@ class App extends Component {
       d => d.date.getHours() + d.date.getMinutes() / 60,
     );
     const distance = flightsFilter.dimension(d => Math.min(1999, d.distance));
-    const distances = distance.group(d => Math.floor(d / 100) * 100);
-    const hours = hour.group(Math.floor);
+    const distances = distance.group(groupDistance);
+    const hours = hour.group(groupHours);
     const allHours = hours.all();
     const allDistances = distances.all();
 
@@ -65,12 +68,16 @@ class App extends Component {
       allHours,
       selectedHourKeys: [],
       allDistances,
-      selectedDistanceKeys: allDistances.map(({key}) => key),
+      selectedDistanceKeys: [],
     });
   }
 
   setSelectedHourKeys = selectedKeys => {
-    this.state.hour.filter(d => selectedKeys.includes(Math.floor(d)));
+    if (selectedKeys.length === 0) {
+      this.state.hour.filterAll();
+    } else {
+      this.state.hour.filter(d => selectedKeys.includes(groupHours(d)));
+    }
 
     this.setState({
       loading: false,
@@ -80,16 +87,16 @@ class App extends Component {
   };
 
   setSelectedDistanceKeys = selectedKeys => {
-    debugger;
-    this.state.distances.filter(d =>
-      selectedKeys.includes(Math.floor(d / 100) * 100),
-    );
-    const allHours = [...this.state.hours.all()];
+    if (selectedKeys.length === 0) {
+      this.state.distance.filterAll();
+    } else {
+      this.state.distance.filter(d => selectedKeys.includes(groupDistance(d)));
+    }
 
     this.setState({
       loading: false,
       selectedDistanceKeys: selectedKeys,
-      allHours,
+      allHours: [...this.state.hours.all()],
     });
   };
 

@@ -26,6 +26,8 @@ const dims = [
   view[1] - trbl[0] - trbl[2],
 ];
 
+// const getKeyTextX = (bandwidth, keyLength) =>
+
 export class BarChart extends PureComponent {
   y = scaleLinear()
     .range([dims[1], 0])
@@ -91,7 +93,8 @@ export class BarChart extends PureComponent {
                         height={dims[1] - y}
                         y={y}
                         fill={
-                          this.props.selectedKeys.includes(key)
+                          this.props.selectedKeys.includes(key) ||
+                          this.props.selectedKeys.length === 0
                             ? SELECTED_COLOR
                             : DESELECTED_COLOR
                         }
