@@ -7,6 +7,12 @@ import {Surface} from '../../atoms'; // this is just a responsive SVG
 import {scaleLinear, scaleBand} from 'd3-scale';
 import {easeExpInOut} from 'd3-ease';
 import {ascending, max} from 'd3-array';
+import color from 'color';
+
+const SELECTED_COLOR = '#00a7d8';
+const DESELECTED_COLOR = color(SELECTED_COLOR)
+  .alpha(0.5)
+  .toString();
 
 // **************************************************
 //  SVG Layout
@@ -20,6 +26,8 @@ const dims = [
   view[1] - trbl[0] - trbl[2],
 ];
 
+// const getKeyTextX = (bandwidth, keyLength) =>
+
 export class BarChart extends PureComponent {
   y = scaleLinear()
     .range([dims[1], 0])
@@ -29,6 +37,16 @@ export class BarChart extends PureComponent {
     .rangeRound([0, dims[0]])
     .domain(this.props.data.map(d => d.key))
     .padding(0.1);
+
+  updateSelectedKeys = key => {
+    if (this.props.selectedKeys.includes(key)) {
+      this.props.onSelectKeysChange(
+        this.props.selectedKeys.filter(selectedKey => selectedKey !== key),
+      );
+    } else {
+      this.props.onSelectKeysChange(this.props.selectedKeys.concat([key]));
+    }
+  };
 
   render() {
     const {y, scale} = this;
@@ -71,9 +89,15 @@ export class BarChart extends PureComponent {
                   return (
                     <g key={key} transform={`translate(${scale(data.key)},0)`}>
                       <rect
+                        onClick={() => this.updateSelectedKeys(key)}
                         height={dims[1] - y}
                         y={y}
-                        fill="#00a7d8"
+                        fill={
+                          this.props.selectedKeys.includes(key) ||
+                          this.props.selectedKeys.length === 0
+                            ? SELECTED_COLOR
+                            : DESELECTED_COLOR
+                        }
                         {...rest}
                       />
                       <text

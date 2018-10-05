@@ -1,13 +1,23 @@
-import React, {Component} from 'react';
 import '../node_modules/material-components-web/dist/material-components-web.min.css';
-import styled from 'styled-components';
-import {Grid, GridCell, GridInner} from '@rmwc/grid';
+import '@rmwc/circular-progress/circular-progress.css';
 import crossfilter from 'crossfilter2';
 import {csvParse} from 'd3-dsv';
+import {branch, renderComponent} from 'recompose';
+import React, {Component} from 'react';
+import styled from 'styled-components';
+import {Grid, GridCell, GridInner} from '@rmwc/grid';
+import {CircularProgress} from '@rmwc/circular-progress';
+import {RMWCProvider} from '@rmwc/provider';
 
-import {TopAppBar, DonutChart, BarChart} from './components';
+import {TopAppBar, BarChart} from './components';
 
-const RootContainer = styled.div``;
+const spinnerWhileLoading = isLoading =>
+  branch(isLoading, renderComponent(() => <CircularProgress size={72} />));
+
+const BarChartWithSpinner = spinnerWhileLoading(({loading}) => loading)(
+  BarChart,
+);
+
 const ContentContainer = styled.div``;
 
 function parseDate(d) {
@@ -19,6 +29,9 @@ function parseDate(d) {
     d.substring(6, 8),
   );
 }
+
+const groupDistance = d => Math.floor(d / 100) * 100;
+const groupHours = Math.floor;
 
 class App extends Component {
   state = {
@@ -41,33 +54,77 @@ class App extends Component {
       d => d.date.getHours() + d.date.getMinutes() / 60,
     );
     const distance = flightsFilter.dimension(d => Math.min(1999, d.distance));
-    const distances = distance.group(d => Math.floor(d / 50) * 50);
-    const hours = hour.group(Math.floor);
+    const distances = distance.group(groupDistance);
+    const hours = hour.group(groupHours);
+    const allHours = hours.all();
+    const allDistances = distances.all();
 
     this.setState({
       loading: false,
+      hour,
       hours,
+      distance,
+      distances,
+      allHours,
+      selectedHourKeys: [],
+      allDistances,
+      selectedDistanceKeys: [],
     });
   }
+
+  setSelectedHourKeys = selectedKeys => {
+    if (selectedKeys.length === 0) {
+      this.state.hour.filterAll();
+    } else {
+      this.state.hour.filter(d => selectedKeys.includes(groupHours(d)));
+    }
+
+    this.setState({
+      loading: false,
+      selectedHourKeys: selectedKeys,
+      allDistances: [...this.state.distances.all()],
+    });
+  };
+
+  setSelectedDistanceKeys = selectedKeys => {
+    if (selectedKeys.length === 0) {
+      this.state.distance.filterAll();
+    } else {
+      this.state.distance.filter(d => selectedKeys.includes(groupDistance(d)));
+    }
+
+    this.setState({
+      loading: false,
+      selectedDistanceKeys: selectedKeys,
+      allHours: [...this.state.hours.all()],
+    });
+  };
+
   render() {
     return (
-      <RootContainer>
+      <RMWCProvider>
         <TopAppBar />
         <ContentContainer>
           <Grid>
             <GridCell span="6">
-              <DonutChart />
+              <BarChartWithSpinner
+                onSelectKeysChange={this.setSelectedDistanceKeys}
+                selectedKeys={this.state.selectedDistanceKeys}
+                loading={this.state.loading}
+                data={this.state.allDistances}
+              />
             </GridCell>
             <GridCell span="6">
-              {this.state.loading ? (
-                undefined
-              ) : (
-                <BarChart data={this.state.hours.all()} />
-              )}
+              <BarChartWithSpinner
+                onSelectKeysChange={this.setSelectedHourKeys}
+                selectedKeys={this.state.selectedHourKeys}
+                loading={this.state.loading}
+                data={this.state.allHours}
+              />
             </GridCell>
           </Grid>
         </ContentContainer>
-      </RootContainer>
+      </RMWCProvider>
     );
   }
 }
