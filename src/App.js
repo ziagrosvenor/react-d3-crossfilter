@@ -11,7 +11,7 @@ import {CircularProgress} from '@rmwc/circular-progress';
 import {RMWCProvider} from '@rmwc/provider';
 import { Typography } from '@rmwc/typography';
 
-import {TopAppBar, BarChart, DonutChart} from './components';
+import {TopAppBar, BarChart, DonutChart, LineChart} from './components';
 
 const spinnerWhileLoading = isLoading =>
   branch(isLoading, renderComponent(() => <CircularProgress size={72} />));
@@ -164,6 +164,11 @@ class App extends Component {
                 selectedKeys={this.state.selectedDelayKeys}
               />
               <Typography use="headline6">Delay minutes</Typography>
+            </GridCell>
+            <GridCell span="6">
+              <LineChart
+              />
+              <Typography use="headline6">Line Chart</Typography>
             </GridCell>
           </Grid>
         </ContentContainer>
