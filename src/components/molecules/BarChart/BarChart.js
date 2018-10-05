@@ -16,7 +16,7 @@ const DESELECTED_COLOR = color(SELECTED_COLOR)
   .toString();
 
 const Line = styled.line`
-stroke:rgb(0,0,0);
+stroke:rgba(0,0,0, 0.5);
 stroke-width:1;
 `
 
@@ -56,30 +56,37 @@ export class BarChart extends PureComponent {
 
   render() {
     const {y, scale} = this;
-    // const scaleTicks = scale.ticks.map((tick, i) => {
-    //   <React.Fragment>
-    //     <text x="0" y=""/>
-    //   </React.Fragment>
-    // })
+    const lines = []
 
+          for(let i = 0; i < 6; i++) {
+        lines.push(
+
+        <React.Fragment>
+                      <text
+                        x={0}
+                        y={dims[1] / 6 * i + 20}
+                        fill="#333">
+                        {Math.floor( this.props.maxValue / (i + 1) )}
+                      </text>
+        <Line key={i} x1="-20" x2={dims[0]} y1={dims[1] / 6 * i} y2={dims[1] / 6 * i}/>
+      </React.Fragment>
+        )}
     return (
       <div>
         <Surface view={view} trbl={trbl}>
+          {lines}
           <NodeGroup
             data={this.props.data}
             keyAccessor={d => d.key}
             start={() => ({
-              opacity: 1e-6,
               y: dims[1],
               width: scale.bandwidth(),
             })}
             enter={d => ({
-              opacity: [0.7],
               y: [y(d.value)],
               timing: {duration: 750, ease: easeExpInOut},
             })}
             update={(d, i) => ({
-              opacity: [0.7],
               y: [y(d.value)],
               width: scale.bandwidth(),
               timing: {
@@ -89,7 +96,6 @@ export class BarChart extends PureComponent {
               },
             })}
             leave={() => ({
-              opacity: [1e-6],
               y: [y.range()[1]],
               timing: {duration: 750, ease: easeExpInOut},
             })}>

@@ -76,6 +76,8 @@ class App extends Component {
       distance,
       distances,
       allHours,
+      maxHours: hours.top(1)[0].value,
+      maxDistances: distances.top(1)[0].value,
       selectedHourKeys: [],
       allDistances,
       selectedDistanceKeys: [],
@@ -136,6 +138,7 @@ class App extends Component {
               <BarChartWithSpinner
                 onSelectKeysChange={this.setSelectedDistanceKeys}
                 selectedKeys={this.state.selectedDistanceKeys}
+                maxValue={this.state.maxDistances}
                 loading={this.state.loading}
                 data={this.state.allDistances}
               />
@@ -144,6 +147,7 @@ class App extends Component {
               <BarChartWithSpinner
                 onSelectKeysChange={this.setSelectedHourKeys}
                 selectedKeys={this.state.selectedHourKeys}
+                maxValue={this.state.maxHours}
                 loading={this.state.loading}
                 data={this.state.allHours}
               />
