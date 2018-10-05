@@ -61,14 +61,14 @@ export class BarChart extends PureComponent {
           for(let i = 0; i < 6; i++) {
         lines.push(
 
-        <React.Fragment>
+        <React.Fragment key={i}>
                       <text
                         x={0}
                         y={dims[1] / 6 * i + 20}
                         fill="#333">
                         {Math.floor( this.props.maxValue / (i + 1) )}
                       </text>
-        <Line key={i} x1="-20" x2={dims[0]} y1={dims[1] / 6 * i} y2={dims[1] / 6 * i}/>
+        <Line  x1="-20" x2={dims[0]} y1={dims[1] / 6 * i} y2={dims[1] / 6 * i}/>
       </React.Fragment>
         )}
     return (
