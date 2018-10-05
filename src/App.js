@@ -1,5 +1,6 @@
 import '../node_modules/material-components-web/dist/material-components-web.min.css';
 import '@rmwc/circular-progress/circular-progress.css';
+import '@material/typography/dist/mdc.typography.css'
 import crossfilter from 'crossfilter2';
 import {csvParse} from 'd3-dsv';
 import {branch, renderComponent} from 'recompose';
@@ -8,6 +9,7 @@ import styled from 'styled-components';
 import {Grid, GridCell, GridInner} from '@rmwc/grid';
 import {CircularProgress} from '@rmwc/circular-progress';
 import {RMWCProvider} from '@rmwc/provider';
+import { Typography } from '@rmwc/typography';
 
 import {TopAppBar, BarChart, DonutChart} from './components';
 
@@ -142,6 +144,7 @@ class App extends Component {
                 loading={this.state.loading}
                 data={this.state.allDistances}
               />
+              <Typography use="headline6">Distance kilometers</Typography>
             </GridCell>
             <GridCell span="6">
               <BarChartWithSpinner
@@ -151,6 +154,7 @@ class App extends Component {
                 loading={this.state.loading}
                 data={this.state.allHours}
               />
+              <Typography use="headline6">Duration hours</Typography>
             </GridCell>
             <GridCell span="6">
               <DonutChartWithSpinner
@@ -159,6 +163,7 @@ class App extends Component {
                 onSelectKeysChange={this.setSelectedDelayKeys}
                 selectedKeys={this.state.selectedDelayKeys}
               />
+              <Typography use="headline6">Delay minutes</Typography>
             </GridCell>
           </Grid>
         </ContentContainer>
