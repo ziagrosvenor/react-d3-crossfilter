@@ -8,11 +8,17 @@ import {scaleLinear, scaleBand} from 'd3-scale';
 import {easeExpInOut} from 'd3-ease';
 import {ascending, max} from 'd3-array';
 import color from 'color';
+import styled from 'styled-components';
 
 const SELECTED_COLOR = '#00a7d8';
 const DESELECTED_COLOR = color(SELECTED_COLOR)
   .alpha(0.5)
   .toString();
+
+const Line = styled.line`
+stroke:rgb(0,0,0);
+stroke-width:1;
+`
 
 // **************************************************
 //  SVG Layout
@@ -50,6 +56,12 @@ export class BarChart extends PureComponent {
 
   render() {
     const {y, scale} = this;
+    // const scaleTicks = scale.ticks.map((tick, i) => {
+    //   <React.Fragment>
+    //     <text x="0" y=""/>
+    //   </React.Fragment>
+    // })
+
     return (
       <div>
         <Surface view={view} trbl={trbl}>

@@ -9,13 +9,17 @@ import {Grid, GridCell, GridInner} from '@rmwc/grid';
 import {CircularProgress} from '@rmwc/circular-progress';
 import {RMWCProvider} from '@rmwc/provider';
 
-import {TopAppBar, BarChart} from './components';
+import {TopAppBar, BarChart, DonutChart} from './components';
 
 const spinnerWhileLoading = isLoading =>
   branch(isLoading, renderComponent(() => <CircularProgress size={72} />));
 
 const BarChartWithSpinner = spinnerWhileLoading(({loading}) => loading)(
   BarChart,
+);
+
+const DonutChartWithSpinner = spinnerWhileLoading(({loading}) => loading)(
+  DonutChart,
 );
 
 const ContentContainer = styled.div``;
@@ -32,6 +36,7 @@ function parseDate(d) {
 
 const groupDistance = d => Math.floor(d / 100) * 100;
 const groupHours = Math.floor;
+const groupDelays = (d) =>  Math.floor(d / 50) * 50
 
 class App extends Component {
   state = {
@@ -53,11 +58,16 @@ class App extends Component {
     const hour = flightsFilter.dimension(
       d => d.date.getHours() + d.date.getMinutes() / 60,
     );
+    const hours = hour.group(groupHours);
     const distance = flightsFilter.dimension(d => Math.min(1999, d.distance));
     const distances = distance.group(groupDistance);
-    const hours = hour.group(groupHours);
+    const delay = flightsFilter.dimension((d) => Math.max(-60, Math.min(149, d.delay)))
+    this.delay = delay
+    this.delays = delay.group(groupDelays)
+
     const allHours = hours.all();
     const allDistances = distances.all();
+    const allDelays = this.delays.all();
 
     this.setState({
       loading: false,
@@ -69,6 +79,8 @@ class App extends Component {
       selectedHourKeys: [],
       allDistances,
       selectedDistanceKeys: [],
+      allDelays,
+      selectedDelayKeys: []
     });
   }
 
@@ -80,9 +92,9 @@ class App extends Component {
     }
 
     this.setState({
-      loading: false,
       selectedHourKeys: selectedKeys,
       allDistances: [...this.state.distances.all()],
+      allDelays: [...this.delays.all()]
     });
   };
 
@@ -94,9 +106,23 @@ class App extends Component {
     }
 
     this.setState({
-      loading: false,
       selectedDistanceKeys: selectedKeys,
       allHours: [...this.state.hours.all()],
+      allDelays: [...this.delays.all()]
+    });
+  };
+
+  setSelectedDelayKeys = selectedKeys => {
+    if (selectedKeys.length === 0) {
+      this.delay.filterAll();
+    } else {
+      this.delay.filter(d => selectedKeys.includes(groupDistance(d)));
+    }
+
+    this.setState({
+      selectedDelayKeys: selectedKeys,
+      allHours: [...this.state.hours.all()],
+      allDistances: [...this.state.distances.all()],
     });
   };
 
@@ -120,6 +146,14 @@ class App extends Component {
                 selectedKeys={this.state.selectedHourKeys}
                 loading={this.state.loading}
                 data={this.state.allHours}
+              />
+            </GridCell>
+            <GridCell span="6">
+              <DonutChartWithSpinner
+                loading={this.state.loading}
+                data={this.state.allDelays}
+                onSelectKeysChange={this.setSelectedDelayKeys}
+                selectedKeys={this.state.selectedDelayKeys}
               />
             </GridCell>
           </Grid>

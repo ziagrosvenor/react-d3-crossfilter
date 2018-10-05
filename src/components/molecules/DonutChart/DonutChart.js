@@ -8,6 +8,7 @@ import {easeExpOut} from 'd3-ease';
 import sortBy from 'lodash/sortBy';
 import React, {PureComponent} from 'react';
 import NodeGroup from 'react-move/NodeGroup';
+import color from 'color';
 
 import {Surface} from '../../atoms';
 import {mockData} from './data';
@@ -52,20 +53,15 @@ const outerArcPath = arc()
   .innerRadius(radius * 1.2)
   .outerRadius(radius * 1.2);
 
-// Use real data
-function getArcs() {
-  const data = shuffle(mockData).map(({name}) => ({
-    name,
-    value: getRandom(10, 100),
-  }));
-
-  return pieLayout(sortBy(data, d => d.name));
+function getArcs(data) {
+  return pieLayout(sortBy(data, d => d.key));
 }
 
 const ARC_OPACITY = 0.9;
 
-const Arc = ({startAngle, endAngle, fill}) => (
+const Arc = ({startAngle, endAngle, fill, onClick}) => (
   <path
+    onClick={onClick}
     d={innerArcPath({startAngle, endAngle})}
     fill={fill}
     opacity={ARC_OPACITY}
@@ -98,30 +94,25 @@ const ArcLabel = ({startAngle, endAngle, labelText}) => {
 };
 
 export class DonutChart extends PureComponent {
-  state = {
-    arcs: getArcs(),
+  updateSelectedKeys = key => {
+    if (this.props.selectedKeys.includes(key)) {
+      this.props.onSelectKeysChange(
+        this.props.selectedKeys.filter(selectedKey => selectedKey !== key),
+      );
+    } else {
+      this.props.onSelectKeysChange(this.props.selectedKeys.concat([key]));
+    }
   };
-
-  update = e => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    this.setState(() => ({
-      arcs: getArcs(),
-    }));
-  };
-
   render() {
-    const {arcs} = this.state;
+    const arcs = getArcs(this.props.data)
 
     return (
       <div>
-        <button onClick={this.update}>Update</button>
         <Surface view={view} trbl={trbl}>
           <g transform={`translate(${dims[0] / 2}, ${dims[1] / 2})`}>
             <NodeGroup
               data={arcs}
-              keyAccessor={d => d.data.name}
+              keyAccessor={d => d.data.key}
               start={({startAngle}) => ({
                 startAngle,
                 endAngle: startAngle,
@@ -142,14 +133,20 @@ export class DonutChart extends PureComponent {
                       return (
                         <g key={key}>
                           <Arc
+                            onClick={() => this.updateSelectedKeys(key)}
                             startAngle={state.startAngle}
                             endAngle={state.endAngle}
-                            fill={colors(data.data.name)}
+                            fill={
+                          this.props.selectedKeys.includes(key) ||
+                          this.props.selectedKeys.length === 0
+                            ? colors(key)
+                            : color(colors(key)).alpha(0.5).toString()
+}
                           />
                           <ArcLabel
                             startAngle={state.startAngle}
                             endAngle={state.endAngle}
-                            labelText={data.data.name}
+                            labelText={data.data.key}
                           />
                         </g>
                       );
